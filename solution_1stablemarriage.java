@@ -1,5 +1,6 @@
 import java.io.BufferedInputStream;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Scanner;
 
 public class solution{
@@ -48,21 +49,16 @@ class solver {
         }
         
         GS(women, men);
-        for (int[] wls : women) {
-            for (int i = 0; i < wls.length; i++)
-                if (wls[i] < 0)
-                    System.out.println(i);
-
-        } 
     }
 
     private void GS(int[][] W, int[][] M) {
-        ArrayList<ArrayList<Integer>> RemovedMen = new ArrayList<>();
+
+        HashMap<Integer, LinkedList<Integer>> pairs = new HashMap<>(); 
 
         // lägger till alla män i en lista
-        ArrayList<ArrayList<Integer>> p = new ArrayList<>();
+        LinkedList<LinkedList<Integer>> p = new LinkedList<>();
         for (int[] is : M) {
-            ArrayList<Integer> list = new ArrayList<>();
+            LinkedList<Integer> list = new LinkedList<>();
             for (int s : is)
                 list.add(s);
             p.add(list);
@@ -70,62 +66,28 @@ class solver {
 
         while (p.size() > 0) {
             // första mannen
-            ArrayList<Integer> currentMan = p.get(0);
-            p.remove(0);
+            LinkedList<Integer> currentMan = p.poll();
+            
+            int man = currentMan.poll();
+            int preferedWoman = currentMan.poll();
+            currentMan.addFirst(man);
 
-            int[] ManMostPrefered = new int[1];
-            // hittar prefered kvinna
-            for (int i = 0; i < W.length; i++) {
-                if (W[i][0] == currentMan.get(1)) {
-                    ManMostPrefered = W[i];
-                    break;
-                }
+            boolean inPair = pairs.containsKey(preferedWoman);
+
+            if (!inPair) {
+                pairs.put(preferedWoman, currentMan);
             }
-
-            // tar bort kvinnan så mannen inte kan välja henne igen
-            currentMan.remove(1);
-
-            // CurrentPartner är -4001 om det inte finns, detta är utanför det möjliga intervallet på N
-            int CurrentPartner = -4001;
-
-            for (int i = 1; i < ManMostPrefered.length; i++) {
-                // CurrentPartner har negativt värde. sparar värdet
-                if (ManMostPrefered[i] < 0) {
-                    CurrentPartner = i;
-                    break;
-                }
+            else if(W[preferedWoman-1][pairs.get(preferedWoman).peek()] > W[preferedWoman-1][man]){
+                LinkedList<Integer> oldMan = pairs.get(preferedWoman);
+                pairs.replace(preferedWoman, currentMan);
+                p.add(oldMan);
             }
-
-            //Om det inte finns en CurrentPartner
-            if (CurrentPartner == -4001) {
-                // lägger till i listan med borttagna män
-                RemovedMen.add(currentMan);
-
-                // gör värdet negativt om de är ett par
-                ManMostPrefered[currentMan.get(0)] = -ManMostPrefered[currentMan.get(0)];
-
-                // lägst värde blir bättre. Partnern har ett negativt värde
-            } else if (-ManMostPrefered[CurrentPartner] > ManMostPrefered[currentMan.get(0)]) {
-                // lägger till i listan med borttagna män
-                RemovedMen.add(currentMan);
-
-                // tar bort den gamla partnern
-                ManMostPrefered[CurrentPartner] = -ManMostPrefered[CurrentPartner];
-                
-                // sätter in den nya partnern
-                ManMostPrefered[currentMan.get(0)] = -ManMostPrefered[currentMan.get(0)];
-
-                //lägger till det borttagna objektet i p igen
-                for (int i = 0; i < RemovedMen.size(); i++) {
-                    if (RemovedMen.get(i).get(0) == CurrentPartner) {
-                        p.add(RemovedMen.remove(i));
-                        break;
-                    }
-                }
-            } else {
-                //lägger tillbaka i listan
+            else{
                 p.add(currentMan);
             }
+        }
+        for(int i = 1; i < pairs.size()+1; i++){
+            System.out.println(pairs.get(i).peek());
         }
     }
 }
