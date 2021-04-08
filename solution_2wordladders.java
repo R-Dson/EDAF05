@@ -1,8 +1,9 @@
 import java.io.BufferedInputStream;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Scanner;
 
-public class solution {
+public class solution_2wordladders {
     public static void main(String[] args) {
         solver s = new solver();
         s.scan();
@@ -102,12 +103,12 @@ class solver {
             n.depth = 0;
         }
         
-        ArrayList<node> q = new ArrayList<node>();
+        LinkedList<node> q = new LinkedList<node>();
         // Lägger till startnoden
         q.add(s);
 
         while (q.size() > 0) {
-            node nodeMain = q.remove(0);
+            node nodeMain = q.poll();
             for (node grannNode : nodeMain.nbs) {
                 // Om pred == null så har vi inte varit vid den noden innan
                 if (grannNode.pred == null) {
@@ -121,7 +122,7 @@ class solver {
                     // Sätter den andra nodens djup som vår mains djup + 1
                     grannNode.depth = nodeMain.depth + 1;
                     // lägger till i kön
-                    q.add(grannNode);
+                    q.addLast(grannNode);
                     // sätter företrädarnoden till nodeMain i den grannoden
                     grannNode.pred = nodeMain;
                 }
@@ -150,12 +151,14 @@ class Graph {
 class node {
     // Nodens egenskaper
     public char[] text;
+    private String Stext;
     public ArrayList<node> nbs = new ArrayList<>();
     public node pred;
     public int depth = 0;
 
     public node(char[] t) {
         text = t;
+        Stext = new String(t);
     }
 
     // räknar antalet gånger en karaktär förekommer i nodens string
@@ -175,7 +178,7 @@ class node {
 
     // Returnerar hela ordet som en sträng
     public String fullWord() {
-        return new String(text);
+        return Stext;
     }
 
     // Kollar om någon string s är samma som denna noden
