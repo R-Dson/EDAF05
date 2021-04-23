@@ -3,7 +3,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Scanner;
 
-public class solution{
+public class solution_1stablemarriage {
     public static void main(String[] args) {
         solver s = new solver();
         s.scan();
