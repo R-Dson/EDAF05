@@ -1,11 +1,8 @@
 import java.io.BufferedInputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Scanner;
 
@@ -43,144 +40,73 @@ public class solution_3makingfriends {
             // lägger till varandra i varandras listor så de pekar på varandra
             NB nuAdd = new NB(nv, w);
             nu.nbs.add(nuAdd);
-            nu.nbsHash.put(nv.value, nuAdd);
 
             NB nvAdd = new NB(nu, w);
             nv.nbs.add(nvAdd);
-            nv.nbsHash.put(nu.value, nvAdd);
 
             Edge e = new Edge(u,v,w);
             graph.edges.add(e);
-
             nv.edges.add(e);
-            nv.pEdges.add(e);
-
             nu.edges.add(e);
-            nu.pEdges.add(e);
             
         }
-        /*HashMap<Node, Integer> T = prim(graph, graph.nodes.get(1));
-        int total = 0;
-        for (Integer i : T.values()) {
-            total += i;
-        }*/
+        
         int total = prim(graph, graph.nodes.get(1));
         System.out.println(total);
     }
 
-    
-
     //graf och rot noden
     static Integer prim(Graph G, Node r) {
-        //LinkedList<NB> T = new LinkedList<>();
-        //HashMap<Node, Integer> T = new HashMap<>();
-        //int weights = 0;
-
-        //HashMap<Integer, Node> Q = new HashMap<>(G.nodes);
-        //Node ne = Q.remove(r.value);
-        //T.put(ne, 0);
-        
-
+        //alla tillgängliga kanter, sorterade enligt högst prioritet (lägst vikt)
         PriorityQueue<Edge> edges = new PriorityQueue<>();
+        //lägger in alla kanter från rot noden
         edges.addAll(r.edges);
 
-        ArrayList<Edge> visited = new ArrayList<>();
-
+        // alla noder har ett tal 1-n, om de är true har vi besäkt tidigare (positionen blir n-1 så klart)
         boolean[] nodeAdded = new boolean[G.nodes.size()];
 
-        HashMap<Integer, Node> nMap = new HashMap<>();
-        //nMap.put(r.value, r);
-
+        //total vikt
         int tw = 0;
-        //int last = r.value;
-        int next = r.value;
-        //Node n = r;
-        nodeAdded[next-1] = true;
+
+        // sätter value till rot värdet 
+        int value = r.value;
+        // sätter att vi besökt roten
+        nodeAdded[value-1] = true;
 
         while (!edges.isEmpty()) {
+            //hämtar kanten med högst prioritet
             Edge e = edges.poll();
             if (!e.visited) {
                 tw += e.w;
                 e.visited = true;
                 
+                // om värdet i nodeAdded för noden v är false så "färdas vi från u till v" annars "färdas vi från v till u". värdet på nodeAdded var om vi hade besökt noden
+                // vi vill hitta noden vi "färdas till". value -1 är att det är en nod vi varit på till en nod som vi varit på
                 if (!nodeAdded[e.v-1]) {
-                    next = e.v;
+                    value = e.v;
                 }
                 else if (!nodeAdded[e.u-1]){
-                    next = e.u;
+                    value = e.u;
                 }
                 else {
-                    next = -1;
+                    value = -1;
                 }
 
-                if (next != -1) {
-                    Node n = G.nodes.get(next);
-                    nodeAdded[next-1] = true;
+                if (value != -1) {
+                    Node n = G.nodes.get(value);
+                    nodeAdded[value-1] = true;
                     for (Edge edge : n.edges) {
                         if (!edge.visited) {
                             edges.add(edge);
                         }
                     }
                 }
+                else{ // tar bort vikten om det är från en nod vi varit på och till en nod vi varit på, dvs både v och u är true i nodeAdded
+                    tw -= e.w;
+                }
             }
         }
         return tw;
-/*
-        while (Q.size() > 0) {
-            Node node = null;
-            NB closestNB = null;
-            int NBweight = Integer.MAX_VALUE;
-
-            Iterator<Node> nIterator = T.keySet().iterator();
-
-            while (nIterator.hasNext()) {
-                Node next = nIterator.next();
-                LinkedList<NB> list = new LinkedList<>();
-
-                while (next.nbs.size() > 0) {
-                    NB closest = next.nbs.poll();
-                    list.add(closest);
-
-                    if (Q.containsKey(closest.node.value) && closest.weight < NBweight){
-                        closestNB = closest;
-                        NBweight = closest.weight;
-                        node = next;
-                        break;
-                    }
-                }
-
-                next.nbs.addAll(list);
-
-            }
-
-
-            Node closest = null;
-            int weight = Integer.MAX_VALUE;
-            for (Node Qnode : Q.values()) {
-
-                for (Node Tnode : T.keySet()) {
-
-                    NB nb = Tnode.nbsHash.get(Qnode.value);
-
-                    if(nb != null){
-                        int w = nb.weight;
-
-                        if (w < weight) {
-                            weight = w;
-                            closest = Qnode;
-                        }
-                    }
-                }
-            }
-            
-            //T.put(Q.remove(closest.value), weight);
-            node.nbs.remove(closestNB);
-            Node newnode = Q.remove(closestNB.node.value);
-            T.put(newnode, NBweight);
-            closestNB = null;
-            NBweight = Integer.MAX_VALUE;
-        }
-        return T;*/
     }
 
 }
@@ -201,11 +127,9 @@ class Graph {
 class Node {
     int value;
     //grannoder
-    HashMap<Integer, NB> nbsHash = new HashMap<>();
     PriorityQueue<NB> nbs = new PriorityQueue<>();
 
     HashSet<Edge> edges = new HashSet<>();
-    PriorityQueue<Edge> pEdges = new PriorityQueue<>();
 
     public Node(int n) {
         value = n;
