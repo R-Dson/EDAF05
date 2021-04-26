@@ -38,14 +38,7 @@ public class solution_3makingfriends {
             }
 
             // lägger till varandra i varandras listor så de pekar på varandra
-            NB nuAdd = new NB(nv, w);
-            nu.nbs.add(nuAdd);
-
-            NB nvAdd = new NB(nu, w);
-            nv.nbs.add(nvAdd);
-
-            Edge e = new Edge(u,v,w);
-            graph.edges.add(e);
+            Edge e = new Edge(u, v, w);
             nv.edges.add(e);
             nu.edges.add(e);
             
@@ -62,24 +55,23 @@ public class solution_3makingfriends {
         //lägger in alla kanter från rot noden
         edges.addAll(r.edges);
 
-        // alla noder har ett tal 1-n, om de är true har vi besäkt tidigare (positionen blir n-1 så klart)
+        // alla noder har ett tal mellan 1 och n, om de är true har vi besäkt tidigare (positionen blir n-1 så klart)
         boolean[] nodeAdded = new boolean[G.nodes.size()];
 
         //total vikt
         int tw = 0;
 
         // sätter value till rot värdet 
-        int value = r.value;
+        //int value = r.value;
         // sätter att vi besökt roten
-        nodeAdded[value-1] = true;
+        nodeAdded[r.value-1] = true;
 
         while (!edges.isEmpty()) {
             //hämtar kanten med högst prioritet
             Edge e = edges.poll();
             if (!e.visited) {
-                tw += e.w;
                 e.visited = true;
-                
+                int value = -1;
                 // om värdet i nodeAdded för noden v är false så "färdas vi från u till v" annars "färdas vi från v till u". värdet på nodeAdded var om vi hade besökt noden
                 // vi vill hitta noden vi "färdas till". value -1 är att det är en nod vi varit på till en nod som vi varit på
                 if (!nodeAdded[e.v-1]) {
@@ -88,21 +80,21 @@ public class solution_3makingfriends {
                 else if (!nodeAdded[e.u-1]){
                     value = e.u;
                 }
-                else {
-                    value = -1;
-                }
 
+                //går bara vidare om vi inte varit på nåbon av noderna innan
                 if (value != -1) {
+                    //adderar vikten
+                    tw += e.w;
+                    //hämtar noden som tillhör värdet på noden vi inte besökt
                     Node n = G.nodes.get(value);
+                    // markerar att vi besökt noden
                     nodeAdded[value-1] = true;
+                    // lägger till alla nya kanter från den nya noden
                     for (Edge edge : n.edges) {
                         if (!edge.visited) {
                             edges.add(edge);
                         }
                     }
-                }
-                else{ // tar bort vikten om det är från en nod vi varit på och till en nod vi varit på, dvs både v och u är true i nodeAdded
-                    tw -= e.w;
                 }
             }
         }
@@ -113,7 +105,6 @@ public class solution_3makingfriends {
 
 class Graph {
     public HashMap<Integer, Node> nodes = new HashMap<>();
-    public ArrayList<Edge> edges = new ArrayList<>();
 
     public Node getNodeByNumber(int i) {
         return nodes.get(i);
@@ -126,9 +117,7 @@ class Graph {
 
 class Node {
     int value;
-    //grannoder
-    PriorityQueue<NB> nbs = new PriorityQueue<>();
-
+    //kanter
     HashSet<Edge> edges = new HashSet<>();
 
     public Node(int n) {
@@ -136,31 +125,11 @@ class Node {
     }
 }
 
-class NB implements Comparator<NB>, Comparable<NB> {
-    public int weight;
-    public Node node;
-
-    public NB(Node n, int w) {
-        node = n;
-        weight = w;
-    }
-
-    @Override
-    public int compare(NB arg0, NB arg1) {
-        return Integer.compare(arg0.weight, arg1.weight);
-    }
-
-    @Override
-    public int compareTo(NB o) {
-        return Integer.compare(this.weight, o.weight);
-    }
-
-}
-
 class Edge implements Comparable<Edge>, Comparator<Edge>{
 
     int v;
     int u;
+    Node nu;
     int w;
 
     boolean visited = false;
