@@ -1,8 +1,8 @@
 import java.io.BufferedInputStream;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Scanner;
 
@@ -17,6 +17,8 @@ public class solution_3makingfriends {
         int N = scanner.nextInt();
         // antalet par som är förväntat att det tar för att bli vänner
         int M = scanner.nextInt();
+
+        graph.numEdges = M;
 
         for (int i = 0; i < M; i++) {
             //
@@ -38,10 +40,9 @@ public class solution_3makingfriends {
             }
 
             // lägger till varandra i varandras listor så de pekar på varandra
-            Edge e = new Edge(u, v, w);
+            Edge e = new Edge(u, v, w, i);
             nv.edges.add(e);
             nu.edges.add(e);
-
         }
 
         int total = prim(graph, graph.nodes.get(1));
@@ -51,13 +52,20 @@ public class solution_3makingfriends {
     // graf och rot noden
     static Integer prim(Graph G, Node r) {
         // alla tillgängliga kanter, sorterade enligt högst prioritet (lägst vikt)
-        PriorityQueue<Edge> edges = new PriorityQueue<>();
+        PriorityQueue<Edge> availableEdges = new PriorityQueue<>();
         // lägger in alla kanter från rot noden
-        edges.addAll(r.edges);
-
+        availableEdges.addAll(r.edges);
+        
         // alla noder har ett tal mellan 1 och n, om de är true har vi besäkt tidigare
         // (positionen blir n-1 så klart)
         boolean[] nodeAdded = new boolean[G.nodes.size()];
+
+        // edgesAdded håller ett värde så att vi inte lägger en edge två gånger
+        boolean[] edgesAdded = new boolean[G.numEdges];
+
+        for (Edge edge : availableEdges) {
+            edgesAdded[edge.val] = true;
+        }
 
         // total vikt
         int tw = 0;
@@ -65,9 +73,9 @@ public class solution_3makingfriends {
         // sätter att vi besökt roten
         nodeAdded[r.value - 1] = true;
 
-        while (!edges.isEmpty()) {
+        while (!availableEdges.isEmpty()) {
             // hämtar kanten med högst prioritet
-            Edge e = edges.poll();
+            Edge e = availableEdges.poll();
             if (!e.visited) {
                 e.visited = true;
                 int value = -1;
@@ -91,9 +99,13 @@ public class solution_3makingfriends {
                     // markerar att vi besökt noden
                     nodeAdded[value - 1] = true;
                     // lägger till alla nya kanter från den nya noden
-                    for (Edge edge : n.edges) {
-                        if (!edge.visited) {
-                            edges.add(edge);
+
+                    Iterator<Edge> it = n.edges.iterator();
+                    while (it.hasNext()) {
+                        Edge edge = it.next();
+                        if (!edge.visited && !edgesAdded[edge.val]) {
+                            availableEdges.add(edge);
+                            edgesAdded[edge.val] = true;
                         }
                     }
                 }
@@ -105,6 +117,7 @@ public class solution_3makingfriends {
 }
 
 class Graph {
+    int numEdges = 0;
     // alla värdne och respektive nod
     public HashMap<Integer, Node> nodes = new HashMap<>();
 }
@@ -112,25 +125,42 @@ class Graph {
 class Node {
     int value;
     // kanter
-    HashSet<Edge> edges = new HashSet<>();
+    LinkedList<Edge> edges = new LinkedList<>();
 
     public Node(int n) {
         value = n;
     }
+
+    @Override
+    public int hashCode() {
+        return value;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Node))
+            return false;
+        if(value == ((Node)obj).value)
+            return true;
+        return false;
+    }
+
 }
 
 class Edge implements Comparable<Edge>, Comparator<Edge> {
 
+    int val;
     int v;
     int u;
     int w;
 
     boolean visited = false;
 
-    public Edge(int v, int u, int w) {
+    public Edge(int v, int u, int w, int val) {
         this.v = v;
         this.u = u;
         this.w = w;
+        this.val = val;
     }
 
     @Override
@@ -143,4 +173,5 @@ class Edge implements Comparable<Edge>, Comparator<Edge> {
         return Integer.compare(this.w, o.w);
     }
 
+    
 }
