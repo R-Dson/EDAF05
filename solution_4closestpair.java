@@ -14,12 +14,12 @@ public class solution_4closestpair {
         Py[] pqPy = new Py[N];
 
         for (int i = 0; i < N; i++) {
-            Px px = new Px(scanner.nextFloat());
+            Px px = new Px(scanner.nextDouble());
 
             // px.value = i;
             pqPx[i] = px;
 
-            Py py = new Py(scanner.nextFloat());
+            Py py = new Py(scanner.nextDouble());
             // px.value = i;
             pqPy[i] = py;
 
@@ -30,11 +30,8 @@ public class solution_4closestpair {
         }
         Arrays.sort(pqPx);
         Arrays.sort(pqPy);
-        //System.out.println((closest(pqPx, pqPy, N) * 1000000d) / 1000000d);
         double d = closest(pqPx, pqPy, N);
-        //String sd = Double.toString(d);
-        String s = String.format("%.6f", (float)(d)).replace(',', '.');
-        //String st = s.replace(',', '.');
+        String s = String.format("%.6f", d).replace(',', '.');
         System.out.println(s);
     }
 
@@ -121,7 +118,7 @@ class Px implements Comparable<Px>, Comparator<Px> {
     Person person;
     double x;
 
-    public Px(Float x) {
+    public Px(Double x) {
         this.x = x;
     }
 
@@ -143,7 +140,7 @@ class Py implements Comparable<Py>, Comparator<Py> {
     Person person;
     double y;
 
-    public Py(Float y) {
+    public Py(Double y) {
         this.y = y;
     }
 
