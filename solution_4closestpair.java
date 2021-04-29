@@ -3,6 +3,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Scanner;
+import java.util.ArrayList;
 
 public class solution_4closestpair {
 
@@ -30,8 +31,11 @@ public class solution_4closestpair {
         }
         Arrays.sort(pqPx);
         Arrays.sort(pqPy);
+        // System.out.println((closest(pqPx, pqPy, N) * 1000000d) / 1000000d);
         double d = closest(pqPx, pqPy, N);
+        // String sd = Double.toString(d);
         String s = String.format("%.6f", d).replace(',', '.');
+        // String st = s.replace(',', '.');
         System.out.println(s);
     }
 
@@ -40,7 +44,7 @@ public class solution_4closestpair {
             if (N == 2) {
                 // return (float) Math.sqrt(Math.pow(py[1].y - py[0].y, 2) + Math.pow(px[1].x -
                 // px[0].x, 2));
-                return pyth(py[1].y - py[0].y, px[1].x - px[0].x);
+                return pyth(py[1].y - py[0].y, py[1].person.Px.x - py[0].person.Px.x);
             }
             if (N == 3) {
                 double lowest = Integer.MAX_VALUE;
@@ -48,7 +52,7 @@ public class solution_4closestpair {
                 for (int i = 0; i < py.length; i++) {
                     for (int j = 0; j < py.length; j++) {
                         if (i != j) {
-                            double f = pyth(px[i].x - px[j].x, px[i].person.Py.y - px[j].person.Py.y);
+                            double f = pyth(py[i].y - py[j].y, py[i].person.Px.x - py[j].person.Px.x);
                             if (f < lowest) {
                                 lowest = f;
                             }
@@ -80,36 +84,47 @@ public class solution_4closestpair {
 
         double delta = Math.min(dl, dr);
 
-        double xAvg = (lx[lx.length - 1].x - rx[0].x) / 2;
+        double xAvg = -(lx[lx.length-1].x - rx[0].x) / 2;
 
-        LinkedList<Py> Syl = new LinkedList<>();
-        LinkedList<Py> Syr = new LinkedList<>();
+        
+
+        ArrayList<Py> Sy = new ArrayList<Py>();
 
         for (int i = 0; i < py.length; i++) {
-            if (xAvg - delta < py[i].person.Px.x && py[i].person.Px.x < xAvg + delta) {
-                if (i < len / 2)
-                    Syl.add(py[i]);
-                else
-                    Syr.add(py[i]);
+            
+            if (xAvg - 200*delta < py[i].person.Px.x && py[i].person.Px.x < xAvg + 200*delta) {
+                Sy.add(py[i]);
             }
         }
 
         double fl = delta;
-        for (Py pyr : Syr) {
-            for (Py pyl : Syl) {
-                // float f = (float) Math.sqrt(Math.pow(pyr.y - pyl.y, 2) +
-                // Math.pow(pyr.person.x.x - pyl.person.x.x, 2));
-                double f = pyth(pyr.y - pyl.y, pyr.person.Px.x - pyl.person.Px.x);
-                if (f < fl) {
-                    fl = f;
+
+        int C = 100000;
+        for (int i = 0; i < Sy.size(); i++) {
+            for (int j = i + 1; j < i + 15; j++) {
+                if (j >= Sy.size()) {
+
+                } else {
+                    double f = pyth(Sy.get(i).y - Sy.get(j).y, Sy.get(i).person.Px.x - Sy.get(j).person.Px.x);
+                    if (f < fl) {
+                        fl = f;
+                    }
                 }
             }
+
         }
+
+        /*
+         * for (Py pyr : Syr) { for (Py pyl : Syl) { // float f = (float)
+         * Math.sqrt(Math.pow(pyr.y - pyl.y, 2) + // Math.pow(pyr.person.x.x -
+         * pyl.person.x.x, 2)); double f = pyth(pyr.y - pyl.y, pyr.person.Px.x -
+         * pyl.person.Px.x); if (f < fl) { fl = f; } } }
+         */
         return fl;
     }
 
     static double pyth(double x, double y) {
-        return Math.sqrt(x*x + y*y);
+        return Math.sqrt(x * x + y * y);
     }
 }
 
