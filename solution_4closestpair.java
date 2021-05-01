@@ -24,7 +24,7 @@ public class solution_4closestpair {
         Arrays.sort(Px);
 
         for (int i = 0; i < N; i++) {
-            Y py = new Y(Px[i].x, Px[i].y);
+            Y py = new Y(Px[i].value(), Px[i].opp());
             Py[i] = py;
         }
 
@@ -35,12 +35,12 @@ public class solution_4closestpair {
         System.out.println(s);
     }
 
-    public static double closest(X[] px, Y[] py, int N) {
+    public static double closest(X[] X, Y[] Y, int N) {
         if (N <= 3) {
             double lowest = Integer.MAX_VALUE;
-            for (int i = 0; i < py.length; i++) {
-                for (int j = i + 1; j < py.length; j++) {
-                    double f = pyth(py[i].y - py[j].y, py[i].x - py[j].x);
+            for (int i = 0; i < Y.length; i++) {
+                for (int j = i + 1; j < Y.length; j++) {
+                    double f = pyth(Y[i].value() - Y[j].value(), Y[i].opp()- Y[j].opp());
                     if (f < lowest) {
                         lowest = f;
                     }
@@ -49,24 +49,24 @@ public class solution_4closestpair {
             return lowest;
         }
 
-        X lx[] = Arrays.copyOfRange(px, 0, N / 2);
-        X rx[] = Arrays.copyOfRange(px, (N / 2), N);
+        X lx[] = Arrays.copyOfRange(X, 0, N / 2);
+        X rx[] = Arrays.copyOfRange(X, (N / 2), N);
 
-        Y ly[] = Arrays.copyOfRange(py, 0, N / 2);
-        Y ry[] = Arrays.copyOfRange(py, (N / 2), N);
+        Y ly[] = Arrays.copyOfRange(Y, 0, N / 2);
+        Y ry[] = Arrays.copyOfRange(Y, (N / 2), N);
 
         double dl = closest(lx, ly, lx.length);
         double dr = closest(rx, ry, rx.length);
 
         double delta = Math.min(dl, dr);
 
-        double xAvg = px[px.length / 2].x;
+        double xAvg = X[X.length / 2].value();
 
         ArrayList<Y> Sy = new ArrayList<>();
 
-        for (int i = 0; i < py.length; i++) {
-            if (Math.abs(xAvg - py[i].x) < delta) {
-                Sy.add(py[i]);
+        for (int i = 0; i < Y.length; i++) {
+            if (Math.abs(xAvg - Y[i].opp()) < delta) {
+                Sy.add(Y[i]);
             }
         }
 
@@ -79,7 +79,7 @@ public class solution_4closestpair {
             for (int j = i + 1; j < i + c; j++) {
                 if (j < Sy.size()) {
                     Y pyj = Sy.get(j);
-                    double dist = pyth(pyi.y - pyj.y, pyi.x - pyj.x);
+                    double dist = pyth(pyi.value() - pyj.value(), pyi.opp() - pyj.opp());
                     if (dist < shortest) {
                         shortest = dist;
                     }
@@ -128,7 +128,7 @@ class X extends Coord implements Comparable<X> {
 
     @Override
     public double value() {
-        return x;
+        return this.x;
     }
 
     @Override
