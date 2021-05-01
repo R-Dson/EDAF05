@@ -1,6 +1,6 @@
 import java.io.BufferedInputStream;
 import java.util.Arrays;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.Scanner;
 import java.util.ArrayList;
 
@@ -13,21 +13,20 @@ public class solution_4closestpair {
         X[] Px = new X[N];
         Y[] Py = new Y[N];
 
-
         for (int i = 0; i < N; i++) {
-            X px = new X(scanner.nextDouble());
+            double x = scanner.nextDouble();
+            double y = scanner.nextDouble();
+
+            X px = new X(x, y);
             Px[i] = px;
-
-            Y py = new Y(scanner.nextDouble());
-            Py[i] = py;
-
-            Point p = new Point(px, py, i);
-            px.person = p;
-            py.person = p;
         }
 
         Arrays.sort(Px);
-        Arrays.sort(Py);
+
+        for (int i = 0; i < N; i++) {
+            Y py = new Y(Px[i].x, Px[i].y);
+            Py[i] = py;
+        }
 
         double d = closest(Px, Py, N);
 
@@ -41,48 +40,38 @@ public class solution_4closestpair {
             double lowest = Integer.MAX_VALUE;
             for (int i = 0; i < py.length; i++) {
                 for (int j = i + 1; j < py.length; j++) {
-                    double f = pyth(py[i].y - py[j].y, py[i].person.Px.x - py[j].person.Px.x);
+                    double f = pyth(py[i].y - py[j].y, py[i].x - py[j].x);
                     if (f < lowest) {
                         lowest = f;
                     }
-
                 }
             }
             return lowest;
         }
 
-        int len = N;
+        X lx[] = Arrays.copyOfRange(px, 0, N / 2);
+        X rx[] = Arrays.copyOfRange(px, (N / 2), N);
 
-        X lx[] = Arrays.copyOfRange(px, 0, len / 2);
-        X rx[] = Arrays.copyOfRange(px, (len / 2), len);
-
-        Y ly[] = new Y[lx.length];
-        Y ry[] = new Y[rx.length];
-
-        for (int i = 0; i < lx.length; i++) {
-            ly[i] = lx[i].person.Py;
-            ry[i] = rx[i].person.Py;
-        }
-
-        if (ry[ry.length - 1] == null)
-            ry[ry.length - 1] = rx[rx.length - 1].person.Py;
+        Y ly[] = Arrays.copyOfRange(py, 0, N / 2);
+        Y ry[] = Arrays.copyOfRange(py, (N / 2), N);
 
         double dl = closest(lx, ly, lx.length);
         double dr = closest(rx, ry, rx.length);
 
         double delta = Math.min(dl, dr);
 
-        double xAvg = px[(px.length)/ 2].x ;
+        double xAvg = px[px.length / 2].x;
 
         ArrayList<Y> Sy = new ArrayList<>();
 
         for (int i = 0; i < py.length; i++) {
-             if (Math.abs(xAvg - py[i].person.Px.x) < delta) {
+            if (Math.abs(xAvg - py[i].x) < delta) {
                 Sy.add(py[i]);
             }
         }
 
-        double fl = delta;
+        Collections.sort(Sy);
+        double shortest = delta;
 
         int c = 15;
         for (int i = 0; i < Sy.size(); i++) {
@@ -90,16 +79,16 @@ public class solution_4closestpair {
             for (int j = i + 1; j < i + c; j++) {
                 if (j < Sy.size()) {
                     Y pyj = Sy.get(j);
-                    double f = pyth(pyi.y - pyj.y, pyi.person.Px.x - pyj.person.Px.x);
-                    if (f < fl) {
-                        fl = f;
+                    double dist = pyth(pyi.y - pyj.y, pyi.x - pyj.x);
+                    if (dist < shortest) {
+                        shortest = dist;
                     }
+                } else {
+                    break;
                 }
             }
-
         }
-
-        return fl;
+        return shortest;
     }
 
     static double pyth(double x, double y) {
@@ -107,18 +96,29 @@ public class solution_4closestpair {
     }
 }
 
-class X implements Comparable<X>, Comparator<X> {
-
-    Point person;
+class Coord {
     double x;
+    double y;
 
-    public X(Double x) {
+    public Coord(double x, double y) {
         this.x = x;
+        this.y = y;
     }
 
-    @Override
-    public int compare(X o1, X o2) {
-        return Double.compare(o1.x, o2.x);
+    public double value() {
+        return -1;
+    }
+
+    public double opp() {
+        return -1;
+    }
+
+}
+
+class X extends Coord implements Comparable<X> {
+
+    public X(double x, double y) {
+        super(x, y);
     }
 
     @Override
@@ -126,39 +126,35 @@ class X implements Comparable<X>, Comparator<X> {
         return Double.compare(x, o.x);
     }
 
-}
-
-class Y implements Comparable<Y>, Comparator<Y> {
-
-    // int value;
-    Point person;
-    double y;
-
-    public Y(Double y) {
-        this.y = y;
+    @Override
+    public double value() {
+        return x;
     }
 
     @Override
-    public int compare(Y o1, Y o2) {
-        return Double.compare(o1.y, o2.y);
+    public double opp() {
+        return y;
+    }
+}
+
+class Y extends Coord implements Comparable<Y>{
+
+    public Y(double x, double y) {
+        super(x, y);
     }
 
     @Override
     public int compareTo(Y o) {
         return Double.compare(y, o.y);
     }
-}
 
-class Point {
-
-    X Px;
-    Y Py;
-    int ind;
-
-    public Point(X x, Y y, int ind) {
-        this.Px = x;
-        this.Py = y;
-        this.ind = ind;
+    @Override
+    public double value() {
+        return y;
     }
 
+    @Override
+    public double opp() {
+        return x;
+    }
 }
