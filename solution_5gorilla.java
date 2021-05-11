@@ -71,9 +71,9 @@ public class solution_5gorilla {
         Iterator<Query> it = queries.iterator();
         while (it.hasNext()) {
             Query query = it.next();
-            optvals = new Integer[query.query1.size()][query.query2.size()];
+            optvals = new Integer[query.query1.size()+1][query.query2.size()+1];
 
-            opt(query.query1.size()-1, query.query2.size()-1, query);
+            opt(query.query1.size(), query.query2.size(), query);
             //optAlt(query);
 
             System.out.println(Arrays.deepToString(optvals).replace("], ", "]\n").replace("[[", "[").replace("]]", "]"));
@@ -113,26 +113,27 @@ public class solution_5gorilla {
         int dopt2 = delta + opt(i - 1, j, query);
 
         optvals[i][j] = Math.min(Math.min(dopt1, dopt2), connopt);
+        
         return optvals[i][j];
     }
 
     static void optAlt(Query q) {
         int delta = -4;
-        for (int i = 0; i < q.query1.size(); i++) {
+        for (int i = 0; i <= q.query1.size(); i++) {
             optvals[i][0] = i * delta;
         }
-        for (int i = 0; i < q.query2.size(); i++) {
+        for (int i = 0; i <= q.query2.size(); i++) {
             optvals[0][i] = i * delta;
         }
-        for (int i = 1; i < q.query1.size(); i++) {
-            for (int j = 1; j < q.query2.size(); j++) {
+        for (int i = 1; i <= q.query1.size(); i++) {
+            for (int j = 1; j <= q.query2.size(); j++) {
                 int dopt2 = delta + optvals[i - 1][j];
                 int dopt1 = delta + optvals[i][j - 1];
 
-                Character ci = q.query1.get(i);
+                Character ci = q.query1.get(i-1);
                 Letter li = lettersC.get(ci);
 
-                Character cj = q.query2.get(j);
+                Character cj = q.query2.get(j-1);
                 Letter lj = lettersC.get(cj);
 
                 int connopt = connection[li.v][lj.v] + optvals[i - 1][j - 1];
