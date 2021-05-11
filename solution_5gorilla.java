@@ -73,8 +73,8 @@ public class solution_5gorilla {
 
             opt = new Integer[q1Length+1][q2Length+1];
 
-            opt(q1Length, q2Length, query);
-
+            //opt(q1Length, q2Length, query);
+            optAlt(query);
             //System.out.println(Arrays.deepToString(optvals).replace("], ", "]\n").replace("[[", "[").replace("]]", "]"));
 
             int longest = Math.max(query.query2.size(), query.query1.size());
@@ -96,7 +96,7 @@ public class solution_5gorilla {
                     sb2.append(query.query2.get(--j));
                 }
                 else if (i > 0 && opt[i][j] + 4  == opt[i - 1][j]) {
-                    sb.append(query.query1.get(j-1));
+                    sb.append(query.query1.get(i-1));
                     sb2.append('*');
                     i--;
                 }
@@ -125,33 +125,31 @@ public class solution_5gorilla {
         }
     }
 
-    static int opt(int i, int j, Query query) {
+
+
+    static void optAlt(Query q) {
         int delta = -4;
-        if (i == 0 && j == 0) {
-            opt[i][j] = 0;
-            return 0;
-        }
-        if (i == 0) {
-            opt[0][j] = j * delta;
-            return j * delta;
-        } else if (j == 0) {
+        for (int i = 0; i <= q.query1.size(); i++) {
             opt[i][0] = i * delta;
-            return i * delta;
         }
+        for (int i = 0; i <= q.query2.size(); i++) {
+            opt[0][i] = i * delta;
+        }
+        for (int i = 1; i <= q.query1.size(); i++) {
+            for (int j = 1; j <= q.query2.size(); j++) {
+                int dopt2 = delta + opt[i - 1][j];
+                int dopt1 = delta + opt[i][j - 1];
 
-        Character ci = query.query1.get(i-1);
-        Letter li = lettersC.get(ci);
+                Character ci = q.query1.get(i-1);
+                Letter li = lettersC.get(ci);
 
-        Character cj = query.query2.get(j-1);
-        Letter lj = lettersC.get(cj);
+                Character cj = q.query2.get(j-1);
+                Letter lj = lettersC.get(cj);
 
-        int connopt = connection[li.v][lj.v] + opt(i - 1, j - 1, query);
-
-        int dopt1 = delta + opt(i, j - 1, query);
-        int dopt2 = delta + opt(i - 1, j, query);
-
-        opt[i][j] = Math.max(Math.max(dopt1, dopt2), connopt);
-        return opt[i][j];
+                int connopt = connection[li.v][lj.v] + opt[i - 1][j - 1];
+                opt[i][j] = Math.max(Math.max(dopt1, dopt2), connopt);
+            }
+        }
     }
 
 }
@@ -175,27 +173,33 @@ class Letter {
     }
 }
 
-/*static void optAlt(Query q) {
+    /*static int opt(int i, int j, Query query) {
         int delta = -4;
-        for (int i = 0; i <= q.query1.size(); i++) {
+        if (i == 0 && j == 0) {
+            opt[i][j] = 0;
+            return 0;
+        }
+        if (i == 0) {
+            opt[0][j] = j * delta;
+            return j * delta;
+        } else if (j == 0) {
             opt[i][0] = i * delta;
+            return i * delta;
         }
-        for (int i = 0; i <= q.query2.size(); i++) {
-            opt[0][i] = i * delta;
-        }
-        for (int i = 1; i <= q.query1.size(); i++) {
-            for (int j = 1; j <= q.query2.size(); j++) {
-                int dopt2 = delta + opt[i - 1][j];
-                int dopt1 = delta + opt[i][j - 1];
 
-                Character ci = q.query1.get(i-1);
-                Letter li = lettersC.get(ci);
+        Character ci = query.query1.get(i-1);
+        Letter li = lettersC.get(ci);
 
-                Character cj = q.query2.get(j-1);
-                Letter lj = lettersC.get(cj);
+        Character cj = query.query2.get(j-1);
+        Letter lj = lettersC.get(cj);
 
-                int connopt = connection[li.v][lj.v] + opt[i - 1][j - 1];
-                opt[i][j] = Math.min(Math.min(dopt1, dopt2), connopt);
-            }
-        }
+        int con = connection[li.v][lj.v];
+        int copt = opt[i-1][j-1];
+        int connopt = con + copt;
+
+        int dopt1 = delta + opt[i][j-1];
+        int dopt2 = delta + opt[i-1][j];
+
+        opt[i][j] = Math.max(Math.max(dopt1, dopt2), connopt);
+        return opt[i][j];
     }*/
