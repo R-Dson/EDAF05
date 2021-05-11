@@ -96,7 +96,7 @@ public class solution_5gorilla {
                     sb2.append(query.query2.get(--j));
                 }
                 else if (i > 0 && opt[i][j] + 4  == opt[i - 1][j]) {
-                    sb.append(query.query1.get(j-1));
+                    sb.append(query.query1.get(i-1));
                     sb2.append('*');
                     i--;
                 }
