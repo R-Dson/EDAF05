@@ -72,18 +72,16 @@ public class solution_5gorilla {
             int q2Length = query.query2.size();
 
             opt = new Integer[q1Length+1][q2Length+1];
-
-            //opt(q1Length, q2Length, query);
             optAlt(query);
+            
             //System.out.println(Arrays.deepToString(optvals).replace("], ", "]\n").replace("[[", "[").replace("]]", "]"));
 
             int longest = Math.max(query.query2.size(), query.query1.size());
 
             int i = query.query1.size();
             int j = query.query2.size();
-            StringBuilder sb = new StringBuilder(longest);
-            StringBuilder sb2 = new StringBuilder(longest);
-
+            String s1 = "";
+            String s2 = "";
             while (i > 0 && j > 0) {
                 Character ci = query.query1.get(i-1);
                 Letter li = lettersC.get(ci);
@@ -91,37 +89,36 @@ public class solution_5gorilla {
                 Character cj = query.query2.get(j-1);
                 Letter lj = lettersC.get(cj);
                 
+                
                 if (i > 0 && j > 0 && opt[i][j] == opt[i-1][j-1] + connection[li.v][lj.v]) {
-                    sb.append(query.query1.get(--i));
-                    sb2.append(query.query2.get(--j));
+                    s1 = query.query1.get(--i) + s1;
+                    s2 = query.query2.get(--j) + s2;
                 }
                 else if (i > 0 && opt[i][j] + 4  == opt[i - 1][j]) {
-                    sb.append(query.query1.get(i-1));
-                    sb2.append('*');
+                    s1 = query.query1.get(i-1) + s1;
+                    s2 = '*' + s2;
                     i--;
                 }
                 else if (j > 0 && opt[i][j] + 4 == opt[i][j-1]) {
-                    sb2.append(query.query2.get(j-1));
-                    sb.append('*');
+                    s1 = '*' + s1;
+                    s2 = query.query2.get(j-1) + s2;
                     j--;
                 }
             }
 
             while (i > 0) {
-                sb.append(query.query1.get(i));
-                sb2.append('*');
+                s1 = query.query1.get(i) + s1;
+                s2 = '*' + s2;
                 i--;                
             }
             while (j > 0) {
-                sb2.append(query.query2.get(j));
-                sb.append('*');
-                i--;                
+                s1 = '*' + s1;
+                s2 = query.query2.get(j) + s2;
+                j--;                
             }
-
-            String st = sb.reverse().toString();
-            String st2 = sb2.reverse().toString();
             
-            System.out.println(st + " " + st2);
+            System.out.println(s1 + " " + s2);
+            it.remove();
         }
     }
 
