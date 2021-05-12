@@ -90,16 +90,18 @@ public class solution_5gorilla {
                 Letter lj = lettersC.get(cj);
                 
                 
-                if (i > 0 && j > 0 && opt[i][j] == opt[i-1][j-1] + connection[li.v][lj.v]) {
-                    s1 = query.query1.get(--i) + s1;
-                    s2 = query.query2.get(--j) + s2;
+                if (opt[i][j] == opt[i-1][j-1] + connection[li.v][lj.v]) {
+                    s1 = query.query1.get(i-1) + s1;
+                    s2 = query.query2.get(j-1) + s2;
+                    i--;
+                    j--;
                 }
-                else if (i > 0 && opt[i][j] + 4  == opt[i - 1][j]) {
+                else if (opt[i][j] + 4  == opt[i - 1][j]) {
                     s1 = query.query1.get(i-1) + s1;
                     s2 = '*' + s2;
                     i--;
                 }
-                else if (j > 0 && opt[i][j] + 4 == opt[i][j-1]) {
+                else if (opt[i][j] + 4 == opt[i][j-1]) {
                     s1 = '*' + s1;
                     s2 = query.query2.get(j-1) + s2;
                     j--;
@@ -107,22 +109,19 @@ public class solution_5gorilla {
             }
 
             while (i > 0) {
-                s1 = query.query1.get(i) + s1;
+                s1 = query.query1.get(i-1) + s1;
                 s2 = '*' + s2;
                 i--;                
             }
             while (j > 0) {
                 s1 = '*' + s1;
-                s2 = query.query2.get(j) + s2;
+                s2 = query.query2.get(j-1) + s2;
                 j--;                
             }
             
             System.out.println(s1 + " " + s2);
-            it.remove();
         }
     }
-
-
 
     static void optAlt(Query q) {
         int delta = -4;
