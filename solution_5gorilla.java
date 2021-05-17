@@ -76,8 +76,6 @@ public class solution_5gorilla {
             
             //System.out.println(Arrays.deepToString(optvals).replace("], ", "]\n").replace("[[", "[").replace("]]", "]"));
 
-            int longest = Math.max(query.query2.size(), query.query1.size());
-
             int i = query.query1.size();
             int j = query.query2.size();
             String s1 = "";
