@@ -15,17 +15,17 @@ class solution_6railwayplanning {
         C = scanner.nextInt(); // antalet personer
         P = scanner.nextInt(); // antalet vägar
 
-        //HashMap<Integer, Node> nodes = new HashMap<>(N);
+        // HashMap<Integer, Node> nodes = new HashMap<>(N);
         Graph graph = new Graph(M, N);
 
         for (int i = 0; i < M; i++) {
             int u = scanner.nextInt();
             int v = scanner.nextInt();
             int c = scanner.nextInt();
-            
+
             Node nodeu = graph.nodes.get(u);
             Node nodev = graph.nodes.get(v);
-            
+
             if (nodeu == null) {
                 nodeu = new Node(u);
                 graph.nodes.put(u, nodeu);
@@ -35,28 +35,80 @@ class solution_6railwayplanning {
                 graph.nodes.put(v, nodev);
             }
 
-            Edge e = new Edge(nodeu, nodev, c, i);
+            Edge e1 = new Edge(nodeu, nodev, c, i);
+            Edge e2 = new Edge(nodev, nodeu, c, i);
 
-            nodeu.edges.put(v, e);
-            nodev.edges.put(u, e);
+            nodeu.edges.put(v, e1);
+            nodev.edges.put(u, e2);
 
-            graph.AddToList(e);
+            graph.AddToList(e1);
+            graph.AddToList(e2);
         }
+
         Integer[] remove = new Integer[P];
         for (int i = 0; i < P; i++) {
             remove[i] = scanner.nextInt();
         }
-        ford_fulkerson(graph, graph.nodes.get(0), graph.nodes.get(graph.nodes.size()-1), C);
+        int lowest = Integer.MAX_VALUE;
+        int count = 0;
+        //graph.CreateRGraph();
+
+        //tar bort kanter
+        //for (int i = 1; i < 16; i++) {
+            //graph.removeEdgei(remove[remove.length - i]);
+        //}
+
+        //int tempis1 = ford_fulkerson(graph, graph.nodes.get(0), graph.nodes.get(graph.nodes.size() - 1), C);
+        //graph.CreateRGraph();
+        //graph.removeEdgei(remove[remove.length - 1]);
+        //int tempis = ford_fulkerson(graph, graph.nodes.get(0), graph.nodes.get(graph.nodes.size() - 1), C);
+
+        for (int i = 0; i < remove.length; i++) {
+            graph.CreateRGraph();
+            graph.removeEdgei(remove[remove.length - i - 1]);
+            int tempi = ford_fulkerson(graph, graph.nodes.get(0), graph.nodes.get(graph.nodes.size() - 1), C);
+
+            if (tempi > -1) {
+                lowest = tempi;
+                count = i;
+            } else {
+                break;
+            }
+
+        }
+
+        System.out.println(count + " " + lowest);
     }
 
-    public static void ford_fulkerson(Graph G, Node s, Node t, int c){
+    public static int ford_fulkerson(Graph G, Node s, Node t, int c) {
         G.SetToZero();
-        G.CreateRGraph();
+        // G.CreateRGraph();
+        int maxflow = 0;
         while (BFS(G.rgraph, s, t)) {
+            int minc = Integer.MAX_VALUE;
+            Node temp = t;
+            while (temp.pred != null) {
+                int tempc = temp.pred.GetEdge(temp.value).cap;
+                if (tempc < minc)
+                    minc = tempc;
+                temp = temp.pred;
+            }
+
+            temp = t;
+            while (temp.pred != null) {
+                Edge edge = temp.pred.GetEdge(temp.value);
+
+                Node d = edge.d, srs = edge.s;
+                d.GetEdge(srs.value).cap += minc;
+                srs.GetEdge(d.value).cap -= minc;
+
+                temp = temp.pred;
+            }
+            maxflow += minc;
             // kan använda t.pred till att hitta vägen tillbaka
-            System.out.println("x");
+
         }
-        //String s = "";
+        return maxflow;
     }
 
     private static boolean BFS(RGraph G, Node s, Node t) {
@@ -74,13 +126,14 @@ class solution_6railwayplanning {
             Node n = itn.next();
             n.pred = null;
         }
-        
+
         LinkedList<Node> q = new LinkedList<Node>();
         // Lägger till startnoden
         q.add(s);
 
         while (q.size() > 0) {
             Node nodeMain = q.poll();
+            nodeMain.visited = true;
             Iterator<Integer> it = nodeMain.edges.keySet().iterator();
 
             while (it.hasNext()) {
@@ -88,7 +141,7 @@ class solution_6railwayplanning {
                 Node grannNode = G.graph.nodes.get(grannI);
                 Edge edge = nodeMain.GetEdge(grannI);
                 // Om pred == null så har vi inte varit vid den noden innan
-                if (grannNode.pred == null) {
+                if (grannNode.pred == null && edge.cap > 0 && !grannNode.visited) {
                     // Kollar om g ord är samma som slutordet
                     if (i == grannNode.value) {
                         grannNode.pred = nodeMain;
@@ -113,38 +166,58 @@ class Graph {
     public HashMap<Integer, Node> nodes;
 
     public RGraph rgraph;
-    public Graph (int M, int N)
-    {
+
+    public Graph(int M, int N) {
         edges = new ArrayList<>(M);
         nodes = new HashMap<>(N);
         this.M = M;
     }
 
-    public void CreateRGraph(){
-        if (rgraph == null){
-            rgraph = new RGraph(M, this);
-            rgraph.AddAll(edges);
+    public void CreateRGraph() {
+        rgraph = new RGraph(M, this);
+        rgraph.AddAll(edges);
+
+        /*for (Edge edge : listEdgesDest) {
+            edge.d.AddEdge(edge.source, edge);
         }
+        for (Edge edge : listEdgesSource) {
+            edge.s.AddEdge(edge.dest, edge);
+        }*/
+        //listEdgesDest.clear();
+        //listEdgesSource.clear();
     }
 
-    public void AddToList(Edge e){
+    public void AddToList(Edge e) {
         edges.add(e);
     }
 
-    public void AddToBoth(Edge e){
+    public void AddToBoth(Edge e) {
         AddToList(e);
         rgraph.AddToList(e);
     }
 
-    public void SetToZero(){
+    public void SetToZero() {
         edges.forEach(e -> e.flow = 0);
-        
+
     }
 
-    private ArrayList<Edge> getEdges(){
-        return edges;
+    ArrayList<Edge> listEdgesDest = new ArrayList<>();
+    ArrayList<Edge> listEdgesSource = new ArrayList<>();
+
+    public void removeEdgei(int i) {
+        Iterator<Edge> it = edges.iterator();
+        while (it.hasNext()) {
+            Edge e = it.next();
+            if (e.index == i) {
+                Node d = e.d;
+                Node s = e.s;
+
+                listEdgesDest.add(d.edges.remove(s.value));
+                listEdgesSource.add(s.edges.remove(d.value));
+            }
+        }
     }
-    
+
 }
 
 class RGraph {
@@ -152,17 +225,17 @@ class RGraph {
     private ArrayList<Edge> RList;
 
     public Graph graph;
-    
+
     public RGraph(int M, Graph G) {
         RList = new ArrayList<>(M);
         graph = G;
     }
 
-    public void AddToList(Edge e){
+    public void AddToList(Edge e) {
         RList.add(e);
     }
 
-    public void AddAll(Collection<Edge> c){
+    public void AddAll(Collection<Edge> c) {
         RList.addAll(c);
     }
 
@@ -180,7 +253,7 @@ class Edge {
 
     public boolean IsBackwards = false;
 
-    public Edge (Node s, Node d, int c, int index) {
+    public Edge(Node s, Node d, int c, int index) {
         this.s = s;
         source = s.value;
         this.d = d;
@@ -195,8 +268,11 @@ class Node {
     int value;
     Node pred;
 
+    boolean visited = false;
+
     HashMap<Integer, Edge> edges = new HashMap<>();
-    public Node(int value){
+
+    public Node(int value) {
         this.value = value;
     }
 
@@ -211,9 +287,9 @@ class Node {
     public Node GetNodeFromEdge(int i) {
         if (i == value)
             return this;
-        
+
         Edge e = edges.get(i);
-        if(e.source == i)
+        if (e.source == i)
             return e.s;
         else
             return e.d;
