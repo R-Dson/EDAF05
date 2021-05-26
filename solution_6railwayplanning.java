@@ -2,7 +2,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Scanner;
 
-public class sol_temp {
+public class solution_6railwayplanning {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
